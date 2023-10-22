@@ -1,0 +1,17 @@
+class BaselineModel(nn.Module):
+    def __init__(self):
+        super(BaselineModel, self).__init__()
+        self.conv1 = nn.Conv2d(3, 8, 5, 1, 1) # Starting with 3 channels (RGB), output of first conv layer has 8 channels, kernel size of 5 (more general features), padding of 2 (same padding)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(8, 12, 3, 1, 1) # 8 input channels, 12 output channels, kernel size of 3 (finer details), padding of 2 (same padding)
+        self.fc1 = nn.Linear(12 * 8 * 8, 32) # WILL NEED TO EDIT BASED ON IMAGE INPUT SIZE, THESE #s ASSUME INPUT DIM 32x32
+        self.fc2 = nn.Linear(32, 5) # 5 classes (BIRADS 1, 2, 3, 4, 5)
+
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 12 * 8 * 8) # WILL NEED TO EDIT BASED ON IMAGE INPUT SIZE, THESE #s ASSUME INPUT DIM 32x32
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        x = x.squeeze(1) # Flatten to [batch_size]
+        return x
