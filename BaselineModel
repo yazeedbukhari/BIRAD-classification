@@ -1,3 +1,19 @@
+#Importing 
+
+import torch
+import numpy as np
+
+import torch.nn as nn
+import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import torch.optim as optim
+import torchvision
+import torchvision.transforms as transforms
+from torch.utils.data.sampler import SubsetRandomSampler
+from torchvision.datasets import ImageFolder
+
+# Baseline Model Architecture
+
 class BaselineModel(nn.Module):
     def __init__(self):
         super(BaselineModel, self).__init__()
@@ -15,3 +31,53 @@ class BaselineModel(nn.Module):
         x = self.fc2(x)
         x = x.squeeze(1) # Flatten to [batch_size]
         return x
+
+# Defining Paths for Small Dataset Testing
+
+train_folder_small = 
+val_folder_small = 
+
+transform = transforms.Compose([transforms.Resize((224,224)),
+                                transforms.ToTensor()])
+
+train_set_small = torchvision.datasets.ImageFolder(train_folder_small, transform = transform)
+val_set_small = torchvision.datasets.ImageFolder(val_folder_small, transform = transform)
+
+
+# Training Code
+
+def train(model, train_set, val_set, batch_size=64, num_epochs=32, lr=0.001):
+    torch.manual_seed(10)
+    train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
+    val_loader = torch.utils.data.DataLoader(val_set, batch_size=batch_size, shuffle=True)
+
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr)
+
+    iters, losses, train_acc, val_acc = [], [], [], []
+
+    # training
+    n = 0 # the number of iterations
+    for epoch in range(num_epochs):
+        for imgs, labels in iter(train_loader):
+
+            if use_cuda and torch.cuda.is_available():
+              imgs = imgs.cuda()
+              labels = labels.cuda()
+
+            out = model(imgs)             # forward pass
+            loss = criterion(out, labels) # compute the total loss
+            loss.backward()               # backward pass (compute parameter updates)
+            optimizer.step()              # make the updates for each parameter
+            optimizer.zero_grad()         # a clean up step for PyTorch
+
+            # save the current training information
+        iters.append(n)
+        losses.append(float(loss)/batch_size)             # compute *average* loss
+        train_acc.append(get_accuracy(model, train_loader)) # compute training accuracy
+        val_acc.append(get_accuracy(model, val_loader))  # compute validation accuracy
+        n += 1
+
+    epochs = np.arange(1, num_epochs + 1)
+
+    return train_acc, val_acc, epochs
